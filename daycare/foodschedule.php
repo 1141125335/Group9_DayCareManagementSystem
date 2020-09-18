@@ -244,6 +244,7 @@ HTML;
   </div>
 </div>
 </div>
+</div>
 <script src="resource/js/jquery-3.2.1.min.js"></script>
 <script src="resource/js/bootstrap.min.js"></script>
 <script src="resource/js/bootbox.min.js"></script>
@@ -368,15 +369,5 @@ HTML;
   }
 ?>
   
-</body>
-</html>
-	
-		
-	</div>
-</div>
-<script src="resource/js/jquery-3.2.1.min.js"></script>
-  <script src="resource/js/bootstrap.min.js"></script>
-  <script src="resource/js/bootbox.min.js"></script>
-<script src="include/js/customjs.js"></script>
 </body>
 </html>
