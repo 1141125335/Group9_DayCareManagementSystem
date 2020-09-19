@@ -295,7 +295,7 @@ HTML;
         <li><a href="Payment.php">Payments</a></li>
         <li><a href="foodschedule.php">Food</a></li>
         <li><a href="timetable.php">Timetable</a></li>
-        <li><a href="result.php">Result</a></li>
+        <li><a href="result.php">Gallery</a></li>
         <?php 
 
         if($_SESSION['permission'] == '1')
