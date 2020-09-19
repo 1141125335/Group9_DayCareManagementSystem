@@ -28,6 +28,7 @@ function submitregister()
   global $db;
   $name = stripcslashes($_POST['name']);
   $verifydoc = stripcslashes($_POST['verifydoc']);
+  $parentemail = stripcslashes($_POST['parentemail']);
 
   $name = $db->real_escape_string($name);
   $verifydoc = $db->real_escape_string($verifydoc);
@@ -53,6 +54,20 @@ function submitregister()
   if($db->query($sql))
   {
     $result['status'] = 1;
+
+    global $mail;
+
+    $url = substr($_SERVER['HTTP_REFERER'], 0, strrpos($_SERVER['HTTP_REFERER'], '/'));
+    $url = $url.'/registration.php?name='.$name.'&verifydoc='.$verifydoc;
+
+    $emailTitle = 'Daycare Registration';
+    $emailContent = <<<HTML
+    <p>Dear $name's parent,</p>
+    <p style="padding-left: 5px">Please register your account at <a href="$url">here</a>.</p>
+HTML;
+
+    $mail->sendmailbymailgun($parentemail, $name.'\'s parent', $emailTitle, $emailContent);
+
   }
   else
   {
@@ -125,6 +140,12 @@ function submitregister()
                         <input type="text" id="verifydoc"  class="form-control">
                     </div>      
                 </div>  
+                <div class="row">
+                    <div class="col-lg-6 form-group">
+                        <label>Parent Email <small>(For sending registration information)</small></label>
+                        <input type="text" id="parentemail"  class="form-control">
+                    </div>      
+                </div>  
           <button type="button" class="btn btn-lg btn-info" onclick="submitRegisterStudent()">Submit</button>
         </div>  
         </form> 
@@ -155,13 +176,15 @@ function submitRegisterStudent()
         return false;
       }
 
+      var parentemail = $('#parentemail').val();
+
       $.ajax(
       {
         url: "adminregister.php", 
         async: true, 
         method: 'POST',
         dataType: 'json',
-        data: 'action=submitregister&name='+name+'&verifydoc='+verifydoc,
+        data: 'action=submitregister&name='+name+'&verifydoc='+verifydoc+'&parentemail='+parentemail,
         success: function(result){
           if(result['status'])
           {
