@@ -53,8 +53,10 @@ HTML;
       $email => $username
       );
 
-    $mail->setupRecipients($recipients);
-    $mail->sendEmail($emailTitle, $emailContent);
+    $mail->sendmailbymailgun($email, $username, $emailTitle, $emailContent);
+
+    // $mail->setupRecipients($recipients);
+    // $mail->sendEmail($emailTitle, $emailContent);
 
   return $result;
 }
