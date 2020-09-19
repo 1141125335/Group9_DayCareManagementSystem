@@ -171,7 +171,9 @@ function moveUploadFile($file, $gallery_name)
 	$path = "upload/gallery/$gallery_name";
 	$filepath = "$path/$filename";
 
-	$urlpath = $_SERVER['HTTP_ORIGIN']."/fyp-daycare/upload/gallery/$gallery_name/$filename";
+	$url = substr($_SERVER['HTTP_REFERER'], 0, strrpos($_SERVER['HTTP_REFERER'], '/'));
+
+	$urlpath = $url."/upload/gallery/$gallery_name/$filename";
 
 	if(!is_dir($path))
 	{
