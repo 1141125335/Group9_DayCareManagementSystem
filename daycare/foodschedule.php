@@ -54,11 +54,41 @@ function submitFoodSchedule()
 
   $result['data'] = $arr;
 
-  return $result;}
+  return $result;
+}
 
 function removeFoodSchedule()
 {
+    global $db;
 
+  $tablename = 'daycare_foodschedule';
+  $primarykey = 'foodschedule_id';
+
+
+  $arr = array(
+    'foodschedule_title' => $_POST['foodschedule_title'],
+    'foodschedule_desc' => $_POST['foodschedule_desc'],
+    'foodschedule_day' => $_POST['foodschedule_day'],
+    'foodtitle_id' => $_POST['foodtitle_id'],
+    'isactive' => 0,
+  );
+
+  if($_POST['foodschedule_id'] != '0' && $_POST['foodschedule_id'] != '')
+  {
+    $arr['foodschedule_id'] = $_POST['foodschedule_id'];
+    $result = updateRecord($tablename, $arr, $primarykey, $_POST['foodschedule_id']);
+  }
+  else
+  {
+    $result = array(
+      'status' => 0,
+      'msg' => 'Schedule not found',
+    );
+  }
+
+  $result['data'] = $arr;
+
+  return $result;
 }
 
 function getFoodSchedule()
@@ -239,7 +269,7 @@ HTML;
 
       </div>
       <div class="modal-footer ">
-        <!-- <button type="button" class="btn btn-info" onclick="removefoodSchedule();">Remove</button> -->
+        <button type="button" class="btn btn-danger" onclick="removeFoodSchedule();">Remove</button>
         <button type="button" class="btn btn-info" onclick="checkbeforeSave();">Save</button>
       </div>
     </div>
@@ -268,6 +298,18 @@ HTML;
     obj.addClass('bg bg-success');
     obj.html(arr.foodschedule_title);
     obj.attr({'title': arr.foodschedule_desc, 'foodschedule_id': arr.foodschedule_id});
+
+
+    foodScheduleArr[arr.foodschedule_id] = JSON.parse(JSON.stringify(arr));
+  }
+
+  function resetfoodschedule(arr)
+  {
+    var obj = $('.foodscheduletd[day="'+arr.foodschedule_day+'"][foodtitle_id="'+arr.foodtitle_id+'"]');
+    obj.attr('class', 'foodscheduletd text-center');
+    obj.html('');
+    obj.attr({'title': '', 'foodschedule_id': ''});
+
   }
 
 </script>
@@ -364,6 +406,33 @@ HTML;
         }
       });
     }
+  }
+
+
+  function removeFoodSchedule()
+  {
+    bootbox.confirm('Confirm Delete?', function(r)
+      {
+        if(r)
+        {
+          var data= 'action=removeFoodSchedule&'+$('#editFoodScheduleForm').serialize();
+
+          simp_ajax('POST', data, 'foodschedule.php').done(function(r)
+          {
+            if(r.status)
+            {
+              resetfoodschedule(r.data);
+              $('#editFoodScheduleForm')[0].reset();
+              $('#editFoodScheduleModal').modal('hide');
+
+            }
+            else
+            {
+              bootbox.alert(r.msg);
+            }
+          });
+        }
+      });
   }
   
 </script>

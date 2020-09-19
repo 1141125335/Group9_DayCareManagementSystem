@@ -37,6 +37,43 @@ function submitTimeTable()
   $timetable_fromtime = (strlen($_POST['timetable_fromtime']) == 5)?$_POST['timetable_fromtime'].':00':$_POST['timetable_fromtime'];
   $timetable_totime = (strlen($_POST['timetable_totime']) == 5)?$_POST['timetable_totime'].':00':$_POST['timetable_totime'];
 
+
+  $fromtime = strtotime('2017-01-01 '.$timetable_fromtime);
+  $totime = strtotime('2017-01-01 '.$timetable_totime);
+
+
+
+  if($fromtime >= $totime)
+  {
+    return array(
+      'status' => 0,
+      'msg' => 'To time cannot smaller or equal than from time'
+    );
+  }
+  else if((int) date('H', $fromtime) < 8 || (int) date('H', $totime) >= 19)
+  {
+    return array(
+      'status' => 0,
+      'msg' => 'Time table must between 8:00A.M. to 6:00P.M.',
+    );
+  }
+  else if(date('i', $fromtime) != '00' && date('i', $fromtime) != '30')
+  {
+    return array(
+      'status' => 0,
+      'msg' => 'From time (minute) must be 00 or 30',
+    );
+  }
+  else if(date('i', $totime) != '00' && date('i', $totime) != '30')
+  {
+    return array(
+      'status' => 0,
+      'msg' => 'To time (minute) must be 00 or 30',
+    );
+  }
+
+
+
   $arr = array(
     'timetable_title' => $_POST['timetable_title'],
     'timetable_fromtime' => $timetable_fromtime,
@@ -55,6 +92,36 @@ function submitTimeTable()
   {
     $result = insertRecord($tablename, $arr);
     $arr['timetable_id'] = $db->insert_id;
+  }
+
+  $result['data'] = $arr;
+
+  return $result;
+}
+
+function removeTimeTable()
+{
+  global $db;
+
+  $tablename = 'daycare_timetable';
+  $primarykey = 'timetable_id';
+
+
+  $arr = array(
+    'isactive' => 0,
+  );
+
+  if($_POST['timetable_id'] != '0' && $_POST['timetable_id'] != '')
+  {
+    $arr['timetable_id'] = $_POST['timetable_id'];
+    $result = updateRecord($tablename, $arr, $primarykey, $_POST['timetable_id']);
+  }
+  else
+  {
+    $result = array(
+      'status' => 0,
+      'msg' => 'Time table not found',
+    );
   }
 
   $result['data'] = $arr;
@@ -259,7 +326,7 @@ HTML;
 
       </div>
       <div class="modal-footer ">
-        <!-- <button type="button" class="btn btn-info" onclick="removeTimeTable();">Remove</button> -->
+        <button type="button" class="btn btn-danger" onclick="removeTimeTable();">Remove</button>
         <button type="button" class="btn btn-info" onclick="checkbeforeSave();">Save</button>
       </div>
     </div>
@@ -419,26 +486,34 @@ if($_SESSION['permission'] == '1')
   {
     if($('input[name="timetable_id"]').val() == '' || $('input[name="timetable_id"]').val() == '0')
     {
+      bootbox.alert('Time table not found');
       return;
     }
-    var data = 'action=removeTimeTable&timetable_id='+$('input[name="timetable_id"]').val();
 
-    simp_ajax('POST', data, 'timetable.php').done(function(r)
-    {
-      if(r.status)
+    bootbox.confirm('Confirm Remove?', function(r)
       {
-        var timetableid = $('input[name="timetable_id"]').val();
-        var day = $('.timetabletd[timetableid="'+timetableid+'"]').attr('day');
-        var fromtime = $('.timetabletd[timetableid="'+timetableid+'"]').attr('time');
-        var totime = $('.timetabletd[timetableid="'+timetableid+'"]').attr('totime');
-        resetTd(day, fromtime, totime);
-        $('#editTimeTableModal').modal('hide');
-      }
-      else
-      {
-        bootbox.alert(r.msg);
-      }
-    });
+        if(r)
+        {
+          var data = 'action=removeTimeTable&timetable_id='+$('input[name="timetable_id"]').val();
+
+          simp_ajax('POST', data, 'timetable.php').done(function(r)
+          {
+            if(r.status)
+            {
+              var timetableid = $('input[name="timetable_id"]').val();
+              var day = $('.timetabletd[timetableid="'+timetableid+'"]').attr('day');
+              var fromtime = $('.timetabletd[timetableid="'+timetableid+'"]').attr('time');
+              var totime = $('.timetabletd[timetableid="'+timetableid+'"]').attr('totime');
+              resetTd(day, fromtime, totime);
+              $('#editTimeTableModal').modal('hide');
+            }
+            else
+            {
+              bootbox.alert(r.msg);
+            }
+          });
+        }
+      });
   }
 
   function resetTd(day, fromtime, totime)
@@ -459,8 +534,11 @@ if($_SESSION['permission'] == '1')
       var obj = $('.timetabletd[day="'+day+'"][time="'+time+'"]');
       
       obj.removeClass('bg bg-success');
-      obj.attr({'rowspan': '', 'timetableid' : '', 'title': '',
-      'totime': '', 'titlename': ''});
+      obj.attr({'rowspan': '', 'timetableid' : '', 'title': '', 'titlename': ''});
+
+      var fromtime = obj.attr('time');
+      obj.attr('totime', fromtime);
+
       obj.empty();
       obj.show();
 
