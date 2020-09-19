@@ -291,7 +291,7 @@ HTML;
 <div id="menu-wrapper">
     <div id="menu" class="container">
       <ul>
-        <li class="current_page_item"><a href="index.php">Home</a></li>
+        <li><a href="index.php">Home</a></li>
         <li><a href="Payment.php">Payments</a></li>
         <li><a href="foodschedule.php">Food</a></li>
         <li><a href="timetable.php">Timetable</a></li>
@@ -303,7 +303,8 @@ HTML;
           echo '<li><a href="adminregister.php">Register</a></li>';
         }
         ?>        
-        <li><a href="javascript:void(0)" onclick="changePermission();">Permission </a></li>
+        <!-- <li><a href="javascript:void(0)" onclick="changePermission();">Permission </a></li> -->
+        <li class="current_page_item"><a href="profile.php">Profile</a></li>
         <li><a href="logout.php">Logout</a></li>
       </ul>
     </div>
