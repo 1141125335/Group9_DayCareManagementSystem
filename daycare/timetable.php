@@ -109,10 +109,10 @@ HTML;
 <div id="menu-wrapper">
     <div id="menu" class="container">
       <ul>
-        <li class="current_page_item"><a href="index.php">Home</a></li>
+        <li><a href="index.php">Home</a></li>
         <li><a href="Payment.php">Payments</a></li>
         <li><a href="foodschedule.php">Food</a></li>
-        <li><a href="timetable.php">Timetable</a></li>
+        <li class="current_page_item"><a href="timetable.php">Timetable</a></li>
         <li><a href="gallery.php">Gallery</a></li>
         <?php 
 
