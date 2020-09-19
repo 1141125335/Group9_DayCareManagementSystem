@@ -29,7 +29,7 @@ if($_POST['action'] == 'changePermission')
 
 }
 
-include 'class/Mail.inc.php';
+include 'class/NewMail.inc.php';
 
 $mail = new Mail;
 
