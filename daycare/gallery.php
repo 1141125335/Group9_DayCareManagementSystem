@@ -79,8 +79,17 @@ function searchGallery()
   global $db;
 
   $gallery_id = $_POST['gallery_id'];
+  $child_id = $_POST['child_id'];
 
-  $sql = "SELECT * FROM daycare_image WHERE gallery_id = '$gallery_id'";
+  $filter_child = '';
+
+  //Filter child if select child
+  if(!empty($child_id))
+  {
+    $filter_child = "AND child_id = '$child_id'";
+  }
+
+  $sql = "SELECT * FROM daycare_image WHERE gallery_id = '$gallery_id' $filter_child";
 
   $query = $db->query($sql);
   
@@ -121,7 +130,8 @@ function deleteImage()
 
   $row = $query->fetch_array(MYSQLI_ASSOC);
 
-  $imagepath = urldecode(str_replace('http://localhost/fyp-daycare/', '', $row['image_uri']));
+  $url = substr($_SERVER['HTTP_REFERER'], 0, strrpos($_SERVER['HTTP_REFERER'], '/') + 1);
+  $imagepath = urldecode(str_replace($url, '', $row['image_uri']));
 
   unlink($imagepath);
 
@@ -137,6 +147,7 @@ function submitImages()
   global $db;
   $files = $_FILES['image']['name'];
   $gallery_id = $_POST['gallery_id'];
+  $child_id = $_POST['child_id'];
   $tablename = 'daycare_image';
 
   $sql = "SELECT gallery_title FROM daycare_gallery WHERE gallery_id = '$gallery_id'";
@@ -161,6 +172,7 @@ function submitImages()
       $arrinsert = array(
         'image_uri' => $move['urlpath'],
         'gallery_id' => $gallery_id,
+        'child_id' => $child_id,
       );
       insertRecord($tablename, $arrinsert);
     }
@@ -210,7 +222,7 @@ function submitImages()
     </div>
   </div>
   <div id="page" style="min-height: 700px;">
-    <div class="form-group col-lg-4">
+    <div class="form-group col-lg-3">
       <label>Gallery Title</label>
       <select id="gallery_title" class="form-control" >
 <?php
@@ -224,8 +236,6 @@ function submitImages()
     echo "<option value='$row[gallery_id]' $selected>$row[gallery_title]</option>";
     $selected = '';
   }
-
-  echo "<option value='addnew' id='addNewGallery'>- Add New -</option>";
 ?>
       </select>
     </div>
@@ -234,16 +244,67 @@ function submitImages()
 if($_SESSION['permission'] == '1')
 {
   echo <<<HTML
-    <div class="form-group col-lg-4">
-        <label>Images</label>
-        <input type="file" multiple class="form-control" accept="Image/*" id="gallery_image">
-      </div>
-      <div class="col-lg-2 form-group">
+    <div class="col-lg-1 form-group">
         <label class="col-lg-12">&nbsp</label>
-        <button class="btn btn-info" onclick="submitImages()">Add Images</button>
+        <button class="btn btn-primary" onclick="addNewGallery()">Add Gallery</button>
     </div>
 HTML;
 }
+
+echo <<<HTML
+  <div class="form-group col-lg-3">
+    <label>Select Child</label>
+    <select id="select_child" class="form-control">
+
+HTML;
+
+$sql = "SELECT * FROM daycare_child ";
+
+if($_SESSION['permission'] != '1')
+{
+  $sql = "SELECT c.*
+  FROM daycare_child c
+  INNER JOIN daycare_parent p ON p.parent_id = c.parent_id
+  INNER JOIN daycare_user u ON u.user_ID = p.user_id
+  WHERE u.user_ID = '".$_SESSION['uid']."'";
+}
+
+$query = $db->query($sql);
+
+while($row = $query->fetch_array(MYSQLI_ASSOC))
+{
+  echo "<option value='$row[child_id]' $selected>$row[child_nickname]</option>";
+}
+
+
+echo <<<HTML
+
+      <option value="0" selected>All</option>
+    </select>
+  </div>
+HTML;
+
+
+if($_SESSION['permission'] == '1')
+{
+  echo <<<HTML
+    <div class="col-lg-12">
+      <div class="row">
+        <div class="form-group col-lg-3">
+            <label>Images</label>
+            <input type="file" multiple class="form-control" accept="Image/*" id="gallery_image">
+          </div>
+          <div class="col-lg-1 form-group">
+            <label class="col-lg-12">&nbsp</label>
+            <button class="btn btn-info" onclick="submitImages()">Add Images</button>
+        </div>
+      </div>
+    </div>
+HTML;
+
+
+}
+
 ?>
     <div  class="col-lg-12" id="galleryBox">
 
@@ -263,14 +324,7 @@ $(function()
 var previous = '';
 $(document).on('change', '#gallery_title', function()
 {
-  if($(this).val() == 'addnew')
-  {
-    addNewGallery();
-  }
-  else
-  {
-    searchGallery();
-  }
+  searchGallery();
 });
 
 $(document).on('focus', '#gallery_title', function()
@@ -280,10 +334,17 @@ $(document).on('focus', '#gallery_title', function()
 });
 
 
+$(document).on('change', '#select_child', function()
+{
+  searchGallery();
+});
+
+
 function searchGallery()
 {
   var gallery_id = $('#gallery_title').val();
-  var data = 'action=searchGallery&gallery_id='+gallery_id;
+  var child_id = $('#select_child').val();
+  var data = 'action=searchGallery&gallery_id='+gallery_id+'&child_id='+child_id;
 
   simp_ajax('POST', data, 'gallery.php').done(function(r)
   {
@@ -365,6 +426,7 @@ function submitImages()
   }
 
   formdata.append('gallery_id', $('#gallery_title').val());
+  formdata.append('child_id', $('#select_child').val());
   formdata.append('action', 'submitImages');
   data_ajax('POST', formdata, 'gallery.php').done(function(r)
   {
