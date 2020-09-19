@@ -203,7 +203,8 @@ function submitImages()
           echo '<li><a href="adminregister.php">Register</a></li>';
         }
         ?>        
-        <li><a href="javascript:void(0)" onclick="changePermission();">Permission </a></li>
+        <!-- <li><a href="javascript:void(0)" onclick="changePermission();">Permission </a></li> -->
+        <li><a href="profile.php">Profile</a></li>
         <li><a href="logout.php">Logout</a></li>
       </ul>
     </div>
