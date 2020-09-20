@@ -200,7 +200,7 @@ function deleteBoard()
 				}
 				?>				
 				
-				<li><a href="profile.php">Profile</a></li>
+				<li><a href="newprofile.php">Profile</a></li>
 				<li><a href="logout.php">Logout</a></li>
 			</ul>
 		</div>
