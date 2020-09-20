@@ -304,7 +304,7 @@ HTML;
         }
         ?>        
         <!-- <li><a href="javascript:void(0)" onclick="changePermission();">Permission </a></li> -->
-        <li class="current_page_item"><a href="profile.php">Profile</a></li>
+        <li class="current_page_item"><a href="newprofile.php">Profile</a></li>
         <li><a href="logout.php">Logout</a></li>
       </ul>
     </div>
@@ -689,7 +689,7 @@ function updateParentProfile(parent_id)
   var data = 'action=updateParentProfile&parent_id='+parent_id+'&parent_name='+parent_name
   +'&parent_phnum='+parent_phnum+'&parent_email='+parent_email;
 
-  simp_ajax('POST', data , 'profile.php').done(function(r)
+  simp_ajax('POST', data , 'newprofile.php').done(function(r)
   {
     if(r)
     {
@@ -705,7 +705,7 @@ function updateChildProfile(child_id, parent_id)
   formdata.append('child_id', child_id);
   formdata.append('parent_id', parent_id);
 
-  data_ajax('POST', formdata, 'profile.php').done(function(r)
+  data_ajax('POST', formdata, 'newprofile.php').done(function(r)
   {
     if(r.status)
     {
