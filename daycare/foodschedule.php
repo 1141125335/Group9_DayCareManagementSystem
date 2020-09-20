@@ -332,6 +332,10 @@ HTML;
     {
       var modaltitle = '<strong>'+title+'</strong>';
       $('#editFoodScheduleTitle').html(modaltitle);
+      $('input[name="foodschedule_title"]').val('');
+      $('textarea[name="foodschedule_desc"]').val('');
+      $('input[name="foodschedule_id"]').val('');
+    
       $('#editFoodScheduleModal').modal('show');
       return;
     }
@@ -351,6 +355,12 @@ HTML;
 
     $('#editFoodScheduleModal').modal('show');
   }
+
+
+  $(document).on('hidden.bs.modal', '#editFoodScheduleModal', function()
+  {
+    $('#editFoodScheduleForm')[0].reset();
+  })
 
   function checkbeforeSave()
   {
@@ -396,7 +406,6 @@ HTML;
         if(r.status)
         {
           setfoodschedule(r.data);
-          $('#editFoodScheduleForm')[0].reset();
           $('#editFoodScheduleModal').modal('hide');
 
         }
@@ -422,7 +431,6 @@ HTML;
             if(r.status)
             {
               resetfoodschedule(r.data);
-              $('#editFoodScheduleForm')[0].reset();
               $('#editFoodScheduleModal').modal('hide');
 
             }
